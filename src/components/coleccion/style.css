@@ -1,110 +1,12 @@
 .coleccion-titulo {
-  margin: 0 0 4px;
-}
-
-.coleccion-contador {
-  margin: 0 0 12px;
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--rojo);
-}
-
-.coleccion-contador span {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--texto-suave);
-}
-
-.coleccion-boton {
-  background: var(--rojo);
-  color: #fff;
-  border-color: var(--rojo);
-  font-weight: 700;
-  padding: 10px 28px;
-}
-
-.coleccion-boton:hover:not(:disabled) {
-  background: var(--rojo-oscuro);
-  border-color: var(--rojo-oscuro);
-  color: #fff;
+  margin: 0 0 16px;
 }
 
 .coleccion-subtitulo {
-  margin: 32px 0 14px;
+  margin: 8px 0 18px;
+  color: var(--rojo);
 }
 
-.coleccion-nuevos {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-}
-
-.coleccion-nuevo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-width: 110px;
-  padding: 12px;
-  background: var(--tarjeta);
-  border: 2px solid var(--rojo);
-  border-radius: var(--radio);
-  box-shadow: var(--sombra);
-  cursor: pointer;
-}
-
-.coleccion-nuevo p {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.coleccion-nuevo.repetido {
-  opacity: 0.55;
-  border-style: dashed;
-  border-color: var(--texto-suave);
-}
-
-.coleccion-album {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.coleccion-pokemon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: 90px;
-  padding: 8px;
-  background: var(--tarjeta);
-  border: 1px dashed var(--borde);
-  border-radius: var(--radio);
-  opacity: 0.5;
-}
-
-.coleccion-pokemon p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--texto-suave);
-}
-
-.coleccion-pokemon.capturado {
-  opacity: 1;
-  border: 1px solid var(--rojo);
-  box-shadow: var(--sombra);
-  cursor: pointer;
-}
-
-.coleccion-pokemon.capturado img {
-  max-height: 45px;
-  object-fit: contain;
-}
-
-/* Enfrentamientos */
 .coleccion-jornadas {
   display: flex;
   flex-wrap: wrap;
