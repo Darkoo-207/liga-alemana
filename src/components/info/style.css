@@ -1,14 +1,12 @@
-.pagina-info {
-  width: min(760px, 100%);
-  margin: 0 auto;
-  padding: 28px 24px 48px;
-  box-sizing: border-box;
+.info {
+  display: flex;
+  justify-content: center;
 }
 
-.pagina-info p {
-  margin-bottom: 18px;
-}
-
-.pagina-info a {
-  color: var(--accent);
+.info-imagen {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
 }
