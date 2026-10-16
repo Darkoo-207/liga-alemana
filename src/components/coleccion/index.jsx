@@ -2,105 +2,170 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './style.css';
 
+const TOTAL_JORNADAS = 34;
+
+const leer = (clave, defecto) => {
+  try {
+    return JSON.parse(localStorage.getItem(clave)) ?? defecto;
+  } catch {
+    return defecto;
+  }
+};
+
 function Coleccion() {
+  const [jornada, setJornada] = useState(1);
   const [partidos, setPartidos] = useState([]);
-  const [fecha, setFecha] = useState(1);
+  const [cargando, setCargando] = useState(true);
+  const [predicciones, setPredicciones] = useState(() => leer('quiniela', {}));
+
+  const [puntosPorJornada, setPuntosPorJornada] = useState(() => leer('quinielaPuntos', {}));
   const navigate = useNavigate();
 
+  const revelada = puntosPorJornada[jornada] !== undefined;
+  const puntosTotales = Object.values(puntosPorJornada).reduce((a, b) => a + b, 0);
+
   useEffect(() => {
-    fetch('https://api.openligadb.de/getmatchdata/bl1/2025')
-      .then((respuesta) => respuesta.json())
-      .then((datos) => setPartidos(datos ?? []))
-      .catch((error) => console.error('Error al cargar partidos:', error));
-  }, []);
+    setCargando(true);
+    fetch(`https://api.openligadb.de/getmatchdata/bl1/2025/${jornada}`)
+      .then((r) => r.json())
+      .then((datos) => setPartidos(datos))
+      .catch((e) => console.error('Error al cargar partidos:', e))
+      .finally(() => setCargando(false));
+  }, [jornada]);
 
-  // Fechas (jornadas) disponibles
-  const fechas = [...new Set(partidos.map((p) => p.group?.groupOrderID))]
-    .filter(Boolean)
-    .sort((a, b) => a - b);
+  useEffect(() => {
+    localStorage.setItem('quiniela', JSON.stringify(predicciones));
+  }, [predicciones]);
 
-  // Partidos de la fecha elegida, agrupados por día
-  const partidosFecha = partidos
-    .filter((p) => p.group?.groupOrderID === fecha)
-    .sort((a, b) => a.matchDateTime.localeCompare(b.matchDateTime));
+  useEffect(() => {
+    localStorage.setItem('quinielaPuntos', JSON.stringify(puntosPorJornada));
+  }, [puntosPorJornada]);
 
-  const partidosPorDia = partidosFecha.reduce((grupos, partido) => {
-    const dia = partido.matchDateTime.slice(0, 10);
-    if (!grupos[dia]) grupos[dia] = [];
-    grupos[dia].push(partido);
-    return grupos;
-  }, {});
+  const resultadoFinal = (partido) =>
+    partido.matchResults?.find((r) => r.resultTypeID === 2) || null;
 
-  const formatearDia = (dia) =>
-    new Date(`${dia}T12:00:00`).toLocaleDateString('es-CO', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-
-  const resultadoFinal = (partido) => {
-    if (!partido.matchIsFinished || !partido.matchResults?.length) return null;
-    return (
-      partido.matchResults.find((r) => r.resultTypeID === 2) ||
-      partido.matchResults[partido.matchResults.length - 1]
-    );
+  const cambiarPrediccion = (id, lado, valor) => {
+    const num = valor === '' ? '' : Math.max(0, Number(valor));
+    setPredicciones((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [lado]: num },
+    }));
   };
 
-  if (partidos.length === 0) return <p>Cargando...</p>;
+  const prediccionCompleta = (partido) => {
+    const p = predicciones[partido.matchID];
+    return p && p.l !== undefined && p.l !== '' && p.v !== undefined && p.v !== '';
+  };
+
+  const todosLlenos = partidos.length > 0 && partidos.every(prediccionCompleta);
+
+  const calcularPuntos = (partido) => {
+    const pred = predicciones[partido.matchID];
+    const real = resultadoFinal(partido);
+    if (!real || !prediccionCompleta(partido)) return 0;
+    if (pred.l === real.pointsTeam1 && pred.v === real.pointsTeam2) return 3;
+    const signo = (a, b) => Math.sign(a - b);
+    return signo(pred.l, pred.v) === signo(real.pointsTeam1, real.pointsTeam2) ? 1 : 0;
+  };
+
+  const verResultados = () => {
+    const total = partidos.reduce((acc, p) => acc + calcularPuntos(p), 0);
+    setPuntosPorJornada((prev) => ({ ...prev, [jornada]: total }));
+  };
+
+  const reiniciar = () => {
+    if (!window.confirm('¿Borrar todas tus predicciones y puntos?')) return;
+    setPredicciones({});
+    setPuntosPorJornada({});
+  };
 
   return (
     <main className="coleccion">
-      <h1 className="coleccion-titulo">Enfrentamientos</h1>
+      <h1 className="coleccion-titulo">Quiniela Bundesliga</h1>
+
+      <p className="coleccion-contador">
+        {puntosTotales} <span>pts totales</span>
+      </p>
 
       <div className="coleccion-jornadas">
-        {fechas.map((numero) => (
-          <button
-            type="button"
-            key={numero}
-            className={numero === fecha ? 'activa' : ''}
-            onClick={() => setFecha(numero)}
-          >
-            {numero}
-          </button>
-        ))}
+        <button disabled={jornada === 1} onClick={() => setJornada(jornada - 1)}>◀</button>
+        <span>Jornada {jornada} / {TOTAL_JORNADAS}</span>
+        <button disabled={jornada === TOTAL_JORNADAS} onClick={() => setJornada(jornada + 1)}>▶</button>
       </div>
 
-      <h2 className="coleccion-subtitulo">Fecha {fecha}</h2>
+      {revelada && (
+        <p className="coleccion-subtitulo">
+          Hiciste {puntosPorJornada[jornada]} pts en esta jornada
+        </p>
+      )}
 
-      {Object.entries(partidosPorDia).map(([dia, partidosDelDia]) => (
-        <section key={dia} className="coleccion-fecha">
-          <h3>{formatearDia(dia)}</h3>
-          {partidosDelDia.map((partido) => {
-            const resultado = resultadoFinal(partido);
-            return (
-              <div className="coleccion-partido" key={partido.matchID}>
-                <div
-                  className="coleccion-partido-equipo"
-                  onClick={() => navigate(`/equipo/${partido.team1.teamId}`)}
-                >
-                  <img src={partido.team1.teamIconUrl} alt={partido.team1.teamName} height="30" />
-                  <p>{partido.team1.teamName}</p>
-                </div>
+      {cargando && <p>Cargando partidos...</p>}
 
-                <p className="coleccion-partido-marcador">
-                  {resultado
-                    ? `${resultado.pointsTeam1} - ${resultado.pointsTeam2}`
-                    : partido.matchDateTime.slice(11, 16)}
-                </p>
+      <section className="coleccion-nuevos">
+        {partidos.map((p) => {
+          const real = resultadoFinal(p);
+          const pred = predicciones[p.matchID] || {};
+          const puntos = revelada ? calcularPuntos(p) : null;
 
-                <div
-                  className="coleccion-partido-equipo"
-                  onClick={() => navigate(`/equipo/${partido.team2.teamId}`)}
-                >
-                  <img src={partido.team2.teamIconUrl} alt={partido.team2.teamName} height="30" />
-                  <p>{partido.team2.teamName}</p>
-                </div>
+          return (
+            <div
+              key={p.matchID}
+              className={`coleccion-nuevo ${puntos === 3 ? 'exacto' : puntos === 1 ? 'acierto' : puntos === 0 ? 'fallo' : ''}`}
+            >
+              <div className="partido-equipo" onClick={() => navigate(`/equipo/${p.team1.teamId}`)}>
+                <img src={p.team1.teamIconUrl} alt={p.team1.teamName} height="40" />
+                <p>{p.team1.shortName || p.team1.teamName}</p>
               </div>
-            );
-          })}
-        </section>
-      ))}
+
+              <div className="partido-marcador">
+                <input
+                  type="number"
+                  min="0"
+                  disabled={revelada}
+                  value={pred.l ?? ''}
+                  onChange={(e) => cambiarPrediccion(p.matchID, 'l', e.target.value)}
+                />
+                <span>-</span>
+                <input
+                  type="number"
+                  min="0"
+                  disabled={revelada}
+                  value={pred.v ?? ''}
+                  onChange={(e) => cambiarPrediccion(p.matchID, 'v', e.target.value)}
+                />
+              </div>
+
+              <div className="partido-equipo" onClick={() => navigate(`/equipo/${p.team2.teamId}`)}>
+                <img src={p.team2.teamIconUrl} alt={p.team2.teamName} height="40" />
+                <p>{p.team2.shortName || p.team2.teamName}</p>
+              </div>
+
+              {revelada && real && (
+                <p className="partido-estado">
+                  Real: {real.pointsTeam1} - {real.pointsTeam2} · {puntos} pts
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </section>
+
+      <div className="coleccion-acciones">
+        {!revelada ? (
+          <button className="coleccion-boton" disabled={!todosLlenos} onClick={verResultados}>
+            {todosLlenos ? 'Ver resultados' : 'Completa todos los marcadores'}
+          </button>
+        ) : (
+          <button
+            className="coleccion-boton"
+            disabled={jornada === TOTAL_JORNADAS}
+            onClick={() => setJornada(jornada + 1)}
+          >
+            Siguiente jornada
+          </button>
+        )}
+        <button onClick={reiniciar}>Reiniciar quiniela</button>
+      </div>
     </main>
   );
 }
