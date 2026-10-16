@@ -1,0 +1,207 @@
+.coleccion-titulo {
+  margin: 0 0 4px;
+}
+
+.coleccion-contador {
+  margin: 0 0 12px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--rojo);
+}
+
+.coleccion-contador span {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.coleccion-boton {
+  background: var(--rojo);
+  color: #fff;
+  border-color: var(--rojo);
+  font-weight: 700;
+  padding: 10px 28px;
+}
+
+.coleccion-boton:hover:not(:disabled) {
+  background: var(--rojo-oscuro);
+  border-color: var(--rojo-oscuro);
+  color: #fff;
+}
+
+.coleccion-subtitulo {
+  margin: 32px 0 14px;
+}
+
+.coleccion-nuevos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.coleccion-nuevo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 110px;
+  padding: 12px;
+  background: var(--tarjeta);
+  border: 2px solid var(--rojo);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  cursor: pointer;
+}
+
+.coleccion-nuevo p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.coleccion-nuevo.repetido {
+  opacity: 0.55;
+  border-style: dashed;
+  border-color: var(--texto-suave);
+}
+
+.coleccion-album {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.coleccion-pokemon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 90px;
+  padding: 8px;
+  background: var(--tarjeta);
+  border: 1px dashed var(--borde);
+  border-radius: var(--radio);
+  opacity: 0.5;
+}
+
+.coleccion-pokemon p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+.coleccion-pokemon.capturado {
+  opacity: 1;
+  border: 1px solid var(--rojo);
+  box-shadow: var(--sombra);
+  cursor: pointer;
+}
+
+.coleccion-pokemon.capturado img {
+  max-height: 45px;
+  object-fit: contain;
+}
+
+/* Enfrentamientos */
+.coleccion-jornadas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.coleccion-jornadas button {
+  min-width: 38px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+.coleccion-jornadas button.activa {
+  background: var(--rojo);
+  border-color: var(--rojo);
+  color: #fff;
+  font-weight: 700;
+}
+
+.coleccion-fecha {
+  max-width: 700px;
+  margin: 0 auto 20px;
+  text-align: left;
+}
+
+.coleccion-fecha h3 {
+  margin: 0 0 10px;
+  padding-left: 10px;
+  border-left: 4px solid var(--rojo);
+  font-size: 1rem;
+  text-transform: capitalize;
+}
+
+.coleccion-partido {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.coleccion-partido-equipo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.coleccion-partido-equipo:last-child {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.coleccion-partido-equipo:hover p {
+  color: var(--rojo);
+}
+
+.coleccion-partido-equipo img {
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+}
+
+.coleccion-partido-equipo p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.coleccion-partido-marcador {
+  margin: 0;
+  min-width: 64px;
+  padding: 4px 12px;
+  font-weight: 800;
+  text-align: center;
+  background: var(--fondo);
+  border-radius: 999px;
+}
+
+@media (max-width: 560px) {
+  .coleccion-partido {
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .coleccion-partido-equipo p {
+    font-size: 0.8rem;
+  }
+
+  .coleccion-partido-equipo img {
+    height: 24px;
+  }
+}

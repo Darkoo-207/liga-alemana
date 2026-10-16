@@ -1,0 +1,14 @@
+.pagina-info {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+  box-sizing: border-box;
+}
+
+.pagina-info p {
+  margin-bottom: 18px;
+}
+
+.pagina-info a {
+  color: var(--accent);
+}
